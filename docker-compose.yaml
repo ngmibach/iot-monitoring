@@ -1,0 +1,32 @@
+services:
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./data/loki:/loki
+      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+    networks:
+      - iot-net
+    
+  grafana:
+    image: grafana/grafana:12.2
+    container_name: grafana
+    ports:
+      - "3210:3000"
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+      - ./dashboards:/etc/grafana/provisioning/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false 
+      - GF_SERVER_ROOT_URL=https://hc1-hpc-0001b.hc.apac.bosch.com:3210
+    networks:
+      - iot-net
+
+networks:
+  iot-net:
+    driver: bridge
